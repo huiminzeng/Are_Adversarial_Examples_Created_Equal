@@ -1,1 +1,3 @@
-# WeightedTraining_AAAI
+# Running Our Code
+## Adversarial Training
+### 
