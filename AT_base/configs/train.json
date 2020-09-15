@@ -1,0 +1,23 @@
+{
+  "data_root": "/scratch0/dataset/CIFAR",
+  "model_depth": 32,
+  "model_width": 10,
+  "alg": "adv_training",
+
+  "lr": 0.01,
+  "batch_size": 128,
+  "weight_decay": 0.0005,
+  "nepochs": 100,
+  "restore": false,
+  "save_path": "results",
+
+  "attack_steps": 10,
+  "attack_eps": 4,
+  "attack_lr": 0.5,
+  "mode": "train",
+
+  "seed": 2,
+  "alpha": 0.1,
+
+  "pre_trained": false
+}
