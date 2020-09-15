@@ -120,7 +120,7 @@ class Trainer:
 
                 if self.args.alg == 'adv_training':
                     input = self.attacker.attack(input, target, self.model, self.args.attack_steps, self.args.attack_lr,
-                                                 random_init=True, target=None, alpha=self.args.alpha)
+                                                 random_init=True, target=None, mode=self.args.mode, alpha=self.args.alpha)
 
                 # compute output
                 self.optimizer.zero_grad()

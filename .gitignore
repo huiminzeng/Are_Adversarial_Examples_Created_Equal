@@ -1,0 +1,4 @@
+**/data
+**/AT_base/__pycache__
+**/AT_base/trained_models
+*.pyc

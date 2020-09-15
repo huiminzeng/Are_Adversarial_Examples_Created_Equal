@@ -14,7 +14,10 @@
   "attack_steps": 10,
   "attack_eps": 4,
   "attack_lr": 0.5,
-  "mode": "train",
+  
+  "mode": "baseline",
+  "dataset": "MNIST",
+  "size": 18,
 
   "seed": 2,
   "alpha": 0.1,

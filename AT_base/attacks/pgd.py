@@ -8,7 +8,7 @@ class PGDAttacker(object):
     def __init__(self, attack_eps):
         self.attack_eps = attack_eps
 
-    def attack(self, x, y, net, attack_steps, attack_lr, random_init=True, target=None, clamp=(0, 1), alpha=0):
+    def attack(self, x, y, net, attack_steps, attack_lr, random_init=True, target=None, clamp=(0, 1), mode ='baseline', alpha=0):
         """
         :param x: Inputs to perturb
         :param y: Corresponding ground-truth labels
@@ -34,36 +34,34 @@ class PGDAttacker(object):
 
             if target is None:
                 # Untargeted attacks - gradient ascent
-                proba = F.softmax(logits, dim=-1)
-                proba_y = proba[list(range(x_adv.size(0))),y]
-                proba_tops, ids_tops = torch.topk(proba,2)
+                if mode == 'margin':
+                    proba = F.softmax(logits, dim=-1)
+                    proba_y = proba[list(range(x_adv.size(0))),y]
+                    proba_tops, ids_tops = torch.topk(proba,2)
 
-                proba_top1 = proba_tops[:,0]
-                proba_top2 = proba_tops[:,1]
+                    proba_top1 = proba_tops[:,0]
+                    proba_top2 = proba_tops[:,1]
 
-                ids_top1 = ids_tops[:,0]
-                ids_top2 = ids_tops[:,1]
+                    ids_top1 = ids_tops[:,0]
+                    ids_top2 = ids_tops[:,1]
 
-                top1_t = (ids_top1.long() != y).float() * proba_top1
-                top2_t = (ids_top1.long() == y).float() * proba_top2
+                    top1_t = (ids_top1.long() != y).float() * proba_top1
+                    top2_t = (ids_top1.long() == y).float() * proba_top2
 
-                proba_t = top1_t + top2_t
-                margin = proba_y - proba_t
-                exp_coe = torch.exp(-margin * alpha)
+                    proba_t = top1_t + top2_t
+                    margin = proba_y - proba_t
+                    exp_coe = torch.exp(-margin * alpha)
 
-                loss = F.cross_entropy(logits, y, reduction='none')
+                    loss = F.cross_entropy(logits, y, reduction='none')
+                    loss = torch.mean(exp_coe * loss)
+                else:
+                    loss = F.cross_entropy(logits, y)
 
-                loss = torch.mean(exp_coe * loss)
-                # print("pgd loss: ", loss.item())
-                # print("alpha: ", alpha)
-                # print("exp: ", exp_coe[:20])
 
                 loss.backward()
                 grad = x_adv.grad.detach()
                 grad = grad.sign()
                 x_adv = x_adv + attack_lr * grad
-                # print("attack lr: ", attack_lr)
-                # print("attack eps: ", self.attack_eps)
 
             else:
                 # Targeted attacks - gradient descent

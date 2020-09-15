@@ -20,14 +20,14 @@ def parse_args():
                         help='Algorithm to train | Clean / Adv')
     parser.add_argument('--save_path', default='trained_models/mnist/ADV_Train', type=str,
                         help='path to save file')
-    parser.add_argument('--attack_steps', default=40, type=int,
-                        help='number of attack iterations (PGD-n)')
-    parser.add_argument('--mode', default="train",
-                        help='mode to use| Can be train, eval, vis')
+
+    parser.add_argument('--mode', default="baseline")
     parser.add_argument('--restore', default=None,
                         help='path to restore')
 
     parser.add_argument('--alpha', default=0.5, type=float)
+    parser.add_argument('--lr', default=0.01, type=float)
+
     parser.add_argument('--seed', default=2, type=int)
     parser.add_argument('--attack_eps', default=0.3, type=float)
     parser.add_argument('--attack_lr', default=0.01, type=float)
@@ -60,18 +60,17 @@ def main(args):
     configs.attack_eps = float(configs.attack_eps)
     configs.attack_lr = float(configs.attack_lr)
 
-    print("configs: ", configs.mode)
+    print("configs mode: ", configs.mode)
+    print("configs lr: ", configs.lr)
+    print("configs size: ", configs.size)
 
     configs.save_path = os.path.join(configs.save_path, configs.mode)
-    experiment_name = exp_name(args)
+    experiment_name = exp_name(configs)
     configs.save_path = os.path.join(configs.save_path, experiment_name)
     pathlib.Path(configs.save_path).mkdir(parents=True, exist_ok=True)
 
-    if configs.mode == 'train':
-        trainer = Trainer(configs)
-        trainer.train()
-    else:
-        raise ValueError('mode should be train, eval or vis')
+    trainer = Trainer(configs)
+    trainer.train()
 
     print("training is over!!!")
 if __name__ == '__main__':

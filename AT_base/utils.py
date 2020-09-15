@@ -68,11 +68,11 @@ def exp_name(args):
         model_type = 'smallcnn'
 
     if args.mode == "baseline":
-        experiment_name = model_type + "_" + args.mode + '_lr_' + str(args.lr) + '_lambda_' + str(args.beta) + '_seed_' + str(args.seed)
+        experiment_name = model_type + "_" + args.mode + '_lr_' + str(args.lr) + '_seed_' + str(args.seed)
         print("training mode: ", experiment_name)
                 
     elif args.mode == "margin":
-        experiment_name = model_type + "_" + args.mode + '_lr_' + str(args.lr) + '_lambda_' + str(args.beta) + '_alpha_' + str(args.alpha) + '_seed_' + str(args.seed)
+        experiment_name = model_type + "_" + args.mode + '_lr_' + str(args.lr) + '_alpha_' + str(args.alpha) + '_seed_' + str(args.seed)
         print("training mode: ", experiment_name)
         
     return experiment_name
