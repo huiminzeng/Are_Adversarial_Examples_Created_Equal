@@ -68,6 +68,7 @@ def trades_loss(model,
                     loss_kl = criterion_kl(F.log_softmax(outputs_adv, dim=1), F.softmax(outputs, dim=1))
                     loss_kl = torch.sum(loss_kl, dim=-1)
                     loss_kl = torch.sum(loss_kl * exp_coe)
+                    break
 
             grad = torch.autograd.grad(loss_kl, [x_adv])[0]
             x_adv = x_adv.detach() + args.step_size * torch.sign(grad.detach())
@@ -114,11 +115,7 @@ def trades_loss(model,
         loss_robust = criterion_kl(F.log_softmax(outputs_adv, dim=1), F.softmax(outputs, dim=1))
         loss_robust = torch.sum(loss_robust, dim=-1)
 
-        if args.normalize:
-            loss_robust = torch.sum(loss_robust * exp_coe)
-            loss_robust /= torch.sum(exp_coe).detach()
-        else:
-            loss_robust = torch.mean(loss_robust * exp_coe)
+        loss_robust = torch.mean(loss_robust * exp_coe)
         
     loss = loss_natural + args.beta * loss_robust
 

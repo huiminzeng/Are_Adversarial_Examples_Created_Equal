@@ -9,7 +9,7 @@ import torchvision
 import torch.optim as optim
 from torchvision import datasets, transforms
 
-from models.resnet import *
+from models import *
 from trades import trades_loss
 
 # perform attack during training:
@@ -135,7 +135,7 @@ def train(args, model, device, train_loader, optimizer, epoch):
             print('Train Epoch: {} [{}/{} ({:.0f}%)]\tLoss: {:.6f}'.format(
                 epoch, batch_idx * len(data), len(train_loader.dataset),
                        100. * batch_idx / len(train_loader), loss.item()))
-
+        break
     return np.mean(loss_his), np.mean(loss_robust_his)
 
 def adjust_learning_rate(optimizer, epoch):
@@ -195,6 +195,8 @@ def main():
             if os.path.exists(file_name):
                 print('Overwriting {}'.format(file_name))
             torch.save(checkpoint, file_name)
+            
+        break
 
     best_name = os.path.join(save_dir, "best.checkpoint")
     best_checkpoint = {'best_acc_adv': best_acc_adv,

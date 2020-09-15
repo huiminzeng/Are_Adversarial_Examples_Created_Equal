@@ -10,7 +10,7 @@ import torchvision
 import torch.optim as optim
 from torchvision import datasets, transforms
 
-from models.small_cnn import *
+from models import *
 from trades import trades_loss
 
 # perform attack during training:
@@ -60,7 +60,6 @@ parser.add_argument('--step_size_eval', default=0.01, type=float,
                     help='perturb step size')
 
 # specify random data distribution for evaluation
-parser.add_argument('--repeat', default=20, type=int, help='repeat times for random distribution')
 parser.add_argument('--random_init',default=True, help='initialize perturbations with random numbers')
   
 args = parser.parse_args()
@@ -71,11 +70,9 @@ if args.size == 'SmallCNN':
 # we then, load the attacker model. This model is used to generate cheating distribution
 if args.mode == "baseline":
     model_name = model_size + "_" + args.mode + '_lr_' + str(args.lr) + '_lambda_' + str(args.beta) + '_seed_' + str(args.seed) 
-    # + '_epsilon_' + str(args.epsilon)
 
 elif args.mode == "margin":
-    model_name = model_size + "_" + args.mode + '_lr_' + str(args.lr) + '_lambda_' + str(args.beta) + '_alpha_' + str(args.alpha) + '_seed_' + str(args.seed) 
-    # + '_epsilon_' + str(args.epsilon)
+    model_name = model_size + "_" + args.mode + '_lr_' + str(args.lr) + '_lambda_' + str(args.beta) + '_alpha_' + str(args.alpha) + '_seed_' + str(args.seed)
 
 # settings
 if args.mode != 'IAAT' and args.mode != 'AT':
@@ -96,54 +93,20 @@ test_loader = torch.utils.data.DataLoader(
                    batch_size=args.test_batch_size, shuffle=False, **kwargs)
 
 def main():
-    # init model, Net() can be also used here for training
-
     if args.size == 'SmallCNN':
         torch.manual_seed(seed)
-        # model = SmallCNN().to(device)
-        model = SmallCNN()
-        model = torch.nn.DataParallel(model).cuda()
+        model = SmallCNN().to(device)
 
-    # model to generate cheating distribution
-    if args.mode == "IAAT":
-        # model_name = '/cmlscratch/huiminz1/workspace/IAAT/results/train_adaptive/adv_training/checkpoint.pth'
-        model_name = '/cmlscratch/huiminz1/workspace/IAAT/results/train_adaptive/adv_training/checkpoint.pth'
-        
-        checkpoint = torch.load(model_name)
-        # print("checkpoint: ", checkpoint['model'].keys())
-        # print()
-        # print("model: ", model.state_dict().keys())
-        model.load_state_dict(checkpoint['model'])
-        print("we are evaluating: IAAT!!")
+    model_name = os.path.join(load_dir, "last.checkpoint")
+    checkpoint = torch.load(model_name, map_location=device)
+    model.load_state_dict(checkpoint['state_dict'])
+    print("we are evaluating: ", model_name)
 
-    elif args.mode == "AT":
-        # model_name = '/cmlscratch/huiminz1/workspace/IAAT/results_epsilon_0.00784313725490196/train/adv_training/alpha_'+str(args.alpha)+'/checkpoint.pth'
-        model_name = '/cmlscratch/huiminz1/workspace/IAAT/results_mnist_epsilon_0.3/train/adv_training/alpha_'+str(args.alpha)+'/checkpoint.pth'
-        # model_name = '/cmlscratch/huiminz1/workspace/IAAT/results_epsilon_0.06274509803921569/train/adv_training/alpha_'+str(args.alpha)+'/checkpoint.pth'
-        # model_name = '/cmlscratch/huiminz1/workspace/IAAT/results/train/adv_training/checkpoint.pth'
-        
-        checkpoint = torch.load(model_name)
-        # print("checkpoint: ", checkpoint['model'].keys())
-        # print()
-        # print("model: ", model.state_dict().keys())
-        model.load_state_dict(checkpoint['model'])
-        print("we are evaluating: Adversarial Training!! ", model_name)
-        
-    else:
-        model_name = os.path.join(load_dir, "last.checkpoint")
-        checkpoint = torch.load(model_name, map_location=device)
-        model.load_state_dict(checkpoint['state_dict'])
-        print("we are evaluating: ", model_name)
-
-    if args.white_box_attack:
-        # white-box attack
-        print('pgd white-box attack')
-        acc_clean, acc_adv, acc_meaned_clean = eval_adv_test_whitebox(model, device, test_loader, args)
-        print("pgd loss: {}, ACC_CLEAN: {:.2f}%, ACC_ADV: {:.2f}%".format(args.pgd_loss, acc_clean*100, acc_adv*100))
-        print("acc clean traditional: {:.2f}%".format(acc_meaned_clean*100))
-    else:
-        acc_clean = 0
-        acc_adv = 0
+    # white-box attack
+    print('pgd white-box attack')
+    acc_clean, acc_adv, acc_meaned_clean = eval_adv_test_whitebox(model, device, test_loader, args)
+    print("pgd loss: {}, ACC_CLEAN: {:.2f}%, ACC_ADV: {:.2f}%".format(args.pgd_loss, acc_clean*100, acc_adv*100))
+    print("acc clean traditional: {:.2f}%".format(acc_meaned_clean*100))
 
 if __name__ == '__main__':
     main()

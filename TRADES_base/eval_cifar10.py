@@ -9,8 +9,7 @@ import torchvision
 import torch.optim as optim
 from torchvision import datasets, transforms
 
-from models.wideresnet import *
-from models.resnet import *
+from models import *
 from trades import trades_loss
 
 # perform attack during training:
@@ -90,7 +89,6 @@ testset = torchvision.datasets.CIFAR10(root='../data', train=False, download=Tru
 test_loader = torch.utils.data.DataLoader(testset, batch_size=args.test_batch_size, shuffle=False, **kwargs)
 
 def main():
-    # init model, Net() can be also used here for training
     if args.size == 18:
         torch.manual_seed(seed)
         model = ResNet18().to(device)

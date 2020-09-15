@@ -7,7 +7,7 @@ import torch.nn.functional as F
 import torch.optim as optim
 from torchvision import datasets, transforms
 
-from models.small_cnn import *
+from models import *
 from trades import trades_loss
 
 # perform attack during training:
@@ -94,10 +94,10 @@ kwargs = {'num_workers': 1, 'pin_memory': True} if use_cuda else {}
 train_loader = torch.utils.data.DataLoader(
     datasets.MNIST('../data', train=True, download=True,
                    transform=transforms.ToTensor()),
-    batch_size=args.batch_size, shuffle=True, **kwargs)
+                    batch_size=args.batch_size, shuffle=True, **kwargs)
 
 test_loader = torch.utils.data.DataLoader(
-    datasets.MNIST('../data', train=False,
+    datasets.MNIST('../data', train=False, download=True,
                    transform=transforms.ToTensor()),
                    batch_size=args.test_batch_size, shuffle=False, **kwargs)
 
@@ -126,6 +126,9 @@ def train(args, model, device, train_loader, optimizer, epoch):
             print('Train Epoch: {} [{}/{} ({:.0f}%)]\tLoss: {:.6f}'.format(
                 epoch, batch_idx * len(data), len(train_loader.dataset),
                 100. * batch_idx / len(train_loader), loss.item()))
+
+        break
+
     return np.mean(loss_his), np.mean(loss_robust_his)
 
 def adjust_learning_rate(optimizer, epoch):
@@ -168,7 +171,6 @@ def main():
         print("** EPOCH[{}|{}], ACC_CLEAN:  {:.2f}%, ACC_ADV: {:.2f}%".format(epoch, args.epochs, acc_clean*100, acc_adv*100))
         print('================================================================')
 
-            
         # save checkpoint
         if acc_adv > best_acc_adv:
             best_acc_adv = acc_adv
@@ -185,6 +187,8 @@ def main():
         if os.path.exists(file_name):
             print('Overwriting {}'.format(file_name))
         torch.save(checkpoint, file_name)
+
+        break
 
     best_name = os.path.join(save_dir, "best.checkpoint")
     best_checkpoint = {'best_acc_adv': best_acc_adv,

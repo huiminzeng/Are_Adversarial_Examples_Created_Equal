@@ -18,14 +18,14 @@ def parse_args():
                         help='path to dataset')
     parser.add_argument('--alg', default='adv_training', type=str,
                         help='Algorithm to train | Clean / Adv')
-    parser.add_argument('--save_path', default='trained_models/mnist/ADV_Train', type=str,
+    parser.add_argument('--save_path', default='trained_models/mnist/', type=str,
                         help='path to save file')
 
     parser.add_argument('--mode', default="baseline")
     parser.add_argument('--restore', default=None,
                         help='path to restore')
 
-    parser.add_argument('--alpha', default=0.5, type=float)
+    parser.add_argument('--alpha', default=0.05, type=float)
     parser.add_argument('--lr', default=0.01, type=float)
 
     parser.add_argument('--seed', default=2, type=int)

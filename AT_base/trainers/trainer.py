@@ -176,6 +176,8 @@ class Trainer:
             adv_acc = self.eval_adversarial()
             self._log('Natural accuracy: {}'.format(nat_acc))
             self._log('Adv accuracy: {}'.format(adv_acc))
+            # break
+        
 
 
     def eval(self):

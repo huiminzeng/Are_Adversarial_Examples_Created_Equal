@@ -32,7 +32,7 @@ parser.add_argument('--cuda', default=0, type=int)
 parser.add_argument('--size', default=18, type=int, help='resnet18 or wideresnet34')
 parser.add_argument('--mode', default='baseline', type=str, help='baseline/margin/AT')
 
-parser.add_argument('--lr', type=float, default=0.2, metavar='LR',
+parser.add_argument('--lr', type=float, default=0.1, metavar='LR',
                     help='learning rate')
 
 ## These parameters will be used to load models as well
@@ -67,10 +67,10 @@ if args.size == 18:
     model_size = 'resnet18'
 
 if args.mode == "baseline":
-    model_name = model_size + "_" + args.mode + '_lr_' + str(args.lr) + '_lambda_' + str(args.beta) + '_seed_' + str(args.seed) 
+    model_name = model_size + "_" + args.mode + '_lr_' + str(args.lr) + '_seed_' + str(args.seed) 
 
 elif args.mode == "margin":
-    model_name = model_size + "_" + args.mode + '_lr_' + str(args.lr) + '_lambda_' + str(args.beta) + '_alpha_' + str(args.alpha) + '_seed_' + str(args.seed) 
+    model_name = model_size + "_" + args.mode + '_lr_' + str(args.lr) + '_alpha_' + str(args.alpha) + '_seed_' + str(args.seed) 
 
 print("We are evaluating Adversarial Training!!!")
 model_dir = args.model_dir
@@ -95,9 +95,9 @@ def main():
         model = ResNet18().to(device)
         model = torch.nn.DataParallel(model).cuda()
     
-    model_name = os.path.join(load_dir, "last.checkpoint")
+    model_name = os.path.join(load_dir, "checkpoint.pth")
     checkpoint = torch.load(model_name, map_location=device)
-    model.load_state_dict(checkpoint['state_dict'])
+    model.load_state_dict(checkpoint['model'])
     print("we are evaluating: ", model_name)
     model = torch.nn.DataParallel(model).cuda()
 

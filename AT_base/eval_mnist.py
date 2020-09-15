@@ -30,22 +30,19 @@ parser.add_argument('--cuda', default=0, type=int)
 
 # load the model, which we would like to evaluate
 parser.add_argument('--size', default='SmallCNN', type=str)
-parser.add_argument('--mode', default='AT', type=str)
+parser.add_argument('--mode', default='baseline', type=str)
 
 parser.add_argument('--lr', type=float, default=0.01, metavar='LR',
                     help='learning rate')
 
 ## These parameters will be used to load models as well
-parser.add_argument('--beta', default=6.0, type=float,
-                    help='regularization, i.e., 1/lambda in TRADES')
-
 parser.add_argument('--alpha', default=0.0, type=float,
                     help='margin/margin_decor')
 
 parser.add_argument('--epsilon', default=0.3, type=float,
                     help='perturbation')
 
-parser.add_argument('--seed', type=int, default=1, metavar='S',
+parser.add_argument('--seed', type=int, default=2, metavar='S',
                     help='random seed (default: 1)')
 
 # pgd loss, we use this to compute weighted loss
@@ -75,11 +72,11 @@ if args.size == 'SmallCNN':
 
 # we then, load the attacker model. This model is used to generate cheating distribution
 if args.mode == "baseline":
-    model_name = model_size + "_" + args.mode + '_lr_' + str(args.lr) + '_lambda_' + str(args.beta) + '_seed_' + str(args.seed) 
+    model_name = model_size + "_" + args.mode + '_lr_' + str(args.lr) + '_seed_' + str(args.seed) 
     # + '_epsilon_' + str(args.epsilon)
 
 elif args.mode == "margin":
-    model_name = model_size + "_" + args.mode + '_lr_' + str(args.lr) + '_lambda_' + str(args.beta) + '_alpha_' + str(args.alpha) + '_seed_' + str(args.seed) 
+    model_name = model_size + "_" + args.mode + '_lr_' + str(args.lr) + '_alpha_' + str(args.alpha) + '_seed_' + str(args.seed) 
     # + '_epsilon_' + str(args.epsilon)
 
 print("We are evaluating Adversarial Training!!!")
@@ -104,9 +101,9 @@ def main():
         model = SmallCNN()
         model = torch.nn.DataParallel(model).cuda()
 
-    model_name = os.path.join(load_dir, "last.checkpoint")
+    model_name = os.path.join(load_dir, "checkpoint.pth")
     checkpoint = torch.load(model_name, map_location=device)
-    model.load_state_dict(checkpoint['state_dict'])
+    model.load_state_dict(checkpoint['model'])
     print("we are evaluating: ", model_name)
 
     # white-box attack
